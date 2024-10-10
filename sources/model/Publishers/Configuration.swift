@@ -15,15 +15,12 @@ extension  Reachability.Connection{
         return  self == .unavailable || (ProcessInfo.processInfo.isLowPowerModeEnabled == true && self == .cellular)
     }
 }
-class Configuration : ObservableObject {
+@Observable
+class Configuration  {
    
     private var reachability: Reachability = try! Reachability()
     
-    @Published var connection: Reachability.Connection = .wifi {
-        willSet {
-                   objectWillChange.send()
-               }
-    }
+    var connection: Reachability.Connection = .wifi 
     
 
     

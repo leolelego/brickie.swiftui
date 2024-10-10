@@ -9,7 +9,7 @@
 import SwiftUI
 import Combine
 struct TextView: View {
-    @EnvironmentObject var config : Configuration
+    @Environment(Model.self) private var model
 
     @Binding var text : String
     var body: some View {
@@ -22,7 +22,7 @@ struct TextView: View {
                   .frame(maxWidth: .infinity, alignment: .leading)
                 
               TextEditor(text: $text).lineSpacing(6)
-                .disabled(config.connection == .unavailable)
+                .disabled(model.reachability.connection == .unavailable)
           
         }.padding(4)
             .background(Color.backgroundContrast)

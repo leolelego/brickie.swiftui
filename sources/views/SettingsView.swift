@@ -29,7 +29,7 @@ struct SettingsView: View {
     @State var logout = false
     
     var body: some View {
-        NavigationView{
+        NavigationStack{
             Form {
                 Section(header:makeThanks()){
                     
@@ -136,7 +136,6 @@ struct SettingsView: View {
                 self.store.reset()
             }
         }
-        .navigationViewStyle(StackNavigationViewStyle())
         .accentColor(.backgroundAlt)
         
     }

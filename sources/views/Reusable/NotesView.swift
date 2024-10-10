@@ -9,6 +9,8 @@
 import SwiftUI
 
 struct NotesView: View {
+    @Environment(Model.self) private var model
+
     enum NotesViewStatus {
         case none
         case saving
@@ -38,8 +40,6 @@ struct NotesView: View {
             }
         }
     }
-    @EnvironmentObject var store : Store
-    @EnvironmentObject var config : Configuration
     
     @Binding var note :String
     @State var status  = NotesViewStatus.none
@@ -81,7 +81,7 @@ struct NotesView: View {
                     status.view
                 }
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 24)
-            }.buttonStyle(RoundedButtonStyle(backgroundColor: status.color  )).opacity(config.connection == .unavailable || store.error == .invalid ? 0.6: 1.0)
+            }.buttonStyle(RoundedButtonStyle(backgroundColor: status.color  )).opacity(model.reachability.connection == .unavailable ? 0.6: 1.0)
             
         }
     }

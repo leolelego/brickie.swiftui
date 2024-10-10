@@ -9,9 +9,9 @@
 import SwiftUI
 import SDWebImageSwiftUI
 struct SetAddtionnalImagesView: View {
-    @EnvironmentObject var config : Configuration
+    @Environment(Model.self) private var model
 
-    let images :  [LegoSet.SetImage]
+    let images :  [SetData.SetImage]
     @State var present : Bool = false
     @State var presentedURLs : [String] = []
     @State var index : Int = 1
@@ -37,14 +37,14 @@ struct SetAddtionnalImagesView: View {
                                     .transition(.fade)
                                     .aspectRatio(contentMode: .fill)
                                     .modifier(RoundedShadowMod())
-                            }.disabled(!SDImageCache.shared.diskImageDataExists(withKey: image.imageURL) && self.config.connection == .unavailable)
+                            }.disabled(!SDImageCache.shared.diskImageDataExists(withKey: image.imageURL) && model.reachability.connection == .unavailable)
                             
                         }
                     }.padding(.horizontal,32)
                 }.frame(height: 100).padding(.horizontal, -16)
                 
             }.transition(.fade)
-            .sheet(isPresented: $present, content: { FullScreenImageView(isPresented: $present, urls: $presentedURLs,currentIndex: $index )})
+            .sheet(isPresented: $present, content: { FullScreenImageView(urls: $presentedURLs,currentIndex: $index )})
     }
 }
 

@@ -6,19 +6,6 @@
 //  Copyright © 2020 LEOLELEGO. All rights reserved.
 //
 import SwiftUI
-extension Color {
-    public static var background: Color {
-        Color("background", bundle: nil)
-    }
-    public static var backgroundContrast: Color {
-        Color("backgroundContrast", bundle: nil)
-    }
- 
-    public static var backgroundAlt: Color {
-        Color("backgroundAlt", bundle: nil)
-    }
-
-}
 
 extension Image {
   

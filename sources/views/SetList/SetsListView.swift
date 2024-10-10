@@ -7,15 +7,18 @@
 //
 
 import SwiftUI
-
+import SwiftData
 struct SetsListView: View {
-    
-    var items : [LegoSet]
+    @Environment(Model.self) private var model
+    @Environment(\.modelContext) private var modelContext
+    @Query() //filter: #Predicate<SetData>{set in set.collection.owned == true}
+    private var sets: [SetData]
+    let fetchMode : Model.FetchAction
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @EnvironmentObject private var  store : Store
+    
+    
     @Binding var sorter : LegoListSorter
-    @Binding var filter : LegoListFilter
-    @Binding var searchFilter : [LegoListSorter:String]
+    @State var searchFilter : [LegoListSorter:String] = [:]
 
     @AppStorage(Settings.compactList) var compactList : Bool = false
     
@@ -37,13 +40,13 @@ struct SetsListView: View {
             
                 
             
-            if setsToShow.count == 0 {
-                TrySyncView(count: store.sets.filter({$0.collection.owned}).count)
+            if sets.count == 0 {
+                TrySyncView(count: sets.filter({$0.collection.owned}).count)
             } else {
                 if horizontalSizeClass == . compact || compactList {
                     List{
                         
-                        ForEach(sections(for:  setsToShow ), id: \.self){ theme in
+                        ForEach(sections(for:  setsToShow ),id: \.self){ theme in
                             if theme == "" {
                                 sectionListView(theme: theme)
                             } else {
@@ -65,7 +68,8 @@ struct SetsListView: View {
                     }
                     .naked
                     .refreshable {
-                        store.requestForSync = true
+                            try? await model.fetch(fetchMode)
+                        
                     }
                 } else { // iPad double list
                     ScrollView{
@@ -92,22 +96,37 @@ struct SetsListView: View {
                 }
             }
         }
+        .task {
+                try? await model.fetch(fetchMode)
+            
+        }
+        .toolbar {
+            
+            FilterSorterMenu( sorter: $sorter, searchFilter: $searchFilter, searchFilterEnabled: true, sorterAvailable: [.default,.alphabetical,.number,.older,.newer,.piece,.pieceDesc,.price,.priceDesc,.pricePerPiece,.pricePerPieceDesc])
+        }
+  
     }
     
     func sectionView(theme:String) -> some View{
-        ForEach(self.items(for: theme, items: self.setsToShow ), id: \.setID) { item in
-            NavigationLink(destination: SetDetailView(set: item)) {
+        ForEach(self.items(for: theme, items: sets ), id: \.setID) { item in
+            NavigationLink(destination: SetDetailView(item: item)) {
                 SetListCell(set:item)
             }
             .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
             .padding(.leading,16).padding(.trailing,8)
             .contextMenu {
                 CellContextMenu(owned: item.collection.qtyOwned, wanted: item.collection.wanted) {
-                    self.store.action(.qty(item.collection.qtyOwned+1),on: item)
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.qty(item.collection.qtyOwned+1),on: item)
+                    }
                 } remove: {
-                    self.store.action(.qty(item.collection.qtyOwned-1),on: item)
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.qty(item.collection.qtyOwned-1),on: item)
+                    }
                 } want: {
-                    self.store.action(.want(!item.collection.wanted),on: item)
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.want(!item.collection.wanted),on: item)
+                    }
                 }
             }
             
@@ -115,13 +134,25 @@ struct SetsListView: View {
     }
     
     func sectionListView(theme:String) -> some View{
-        ForEach(self.items(for: theme, items: self.setsToShow ), id: \.setID) { item in
+        ForEach(items(for: theme, items: sets ), id: \.setID) { item in
             NakedListActionCell(
                 owned: item.collection.qtyOwned, wanted: item.collection.wanted,
-                add: {self.store.action(.qty(item.collection.qtyOwned+1),on: item)},
-                remove: {store.action(.qty(item.collection.qtyOwned-1),on: item)},
-                want: {store.action(.want(!item.collection.wanted),on: item)},
-                destination: SetDetailView(set: item)) {
+                add: {
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.qty(item.collection.qtyOwned+1),on: item)
+                    }
+                },
+                remove: {
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.qty(item.collection.qtyOwned-1),on: item)
+                    }
+                },
+                want: {
+                    Task(priority: .userInitiated) {
+                        try? await model.perform(.want(!item.collection.wanted),on: item)
+                    }
+                },
+                destination: SetDetailView(item: item)) {
                     if (compactList) {
                         CompactSetListCell(set:item)
                     } else {
@@ -132,7 +163,8 @@ struct SetsListView: View {
         }
     }
     
-    func sections(for items:[LegoSet]) -> [String] {
+    func sections(for items:[SetData]) -> [String] {
+        
         switch sorter {
         case .number,.piece,.price,.pieceDesc,.priceDesc,.pricePerPiece,.pricePerPieceDesc:
             return [""]
@@ -146,7 +178,7 @@ struct SetsListView: View {
             return Array(Set(items.compactMap({$0.theme}))).sorted()
         }
     }
-    func items(for section:String,items:[LegoSet]) -> [LegoSet] {
+    func items(for section:String,items:[SetData]) -> [SetData] {
         switch sorter {
         case .number:
             return items.sorted(by: {Int($0.number) ?? 0 < Int($1.number) ?? 0})
@@ -171,20 +203,11 @@ struct SetsListView: View {
         }
     }
     
-    var setsToShow : [LegoSet] {
-        let sets : [LegoSet]
-        switch filter {
-        case .all:
-            sets =  items
-        case .wanted:
-            sets =  store.searchSetsText.isEmpty ? store.sets.filter({$0.collection.wanted}) : items.filter({$0.collection.wanted})
-        case .owned:
-            sets =  items.filter({$0.collection.owned})
-        }
+    var setsToShow : [SetData] {
         return searchFilter.count > 0  ?  searchFilteredSets(sets) : sets
     }
     
-    func searchFilteredSets(_ sets:[LegoSet]) -> [LegoSet] {
+    func searchFilteredSets(_ sets:[SetData]) -> [SetData] {
         var filtered = sets
         
         for (key,value) in searchFilter{
@@ -203,16 +226,3 @@ struct SetsListView: View {
     
     
 }
-
-//struct SetsListView_Previews: PreviewProvider {
-//    @State static var filter : LegoListFilter = .all
-//    @AppStorage(Settings.setsListSorter) static var sorter : LegoListSorter = .default
-//    static var previews: some View {
-//        let store = PreviewStore()
-//        SetsListView(items: store.sets, sorter:$sorter, filter: $filter,)
-////            .previewDevice("iPhone SE")
-//            .environmentObject(store as Store)
-//            .environmentObject(Configuration())
-//            .previewDisplayName("Defaults2")
-//    }
-//}

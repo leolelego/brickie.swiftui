@@ -9,19 +9,14 @@
 import SwiftUI
 
 struct TrySyncView: View {
-    @EnvironmentObject private var  store : Store
     var count : Int
     var body: some View {
         
         HStack(alignment: .center){
             Spacer()
-            if store.isLoadingData {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle())
-            } else {
+
                 Text("sets.noitems").font(.largeTitle).bold()
-                
-            }
+            
             Spacer()
         }
         if count == 0 {

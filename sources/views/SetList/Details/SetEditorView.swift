@@ -9,18 +9,20 @@
 import SwiftUI
 
 struct SetEditorView: View {
-    @EnvironmentObject var store : Store
-    @EnvironmentObject var config : Configuration
-    @ObservedObject var set : LegoSet
+    @Environment(Model.self) private var model
+    
+    var item : SetData
+    let generator = UINotificationFeedbackGenerator()
+    
     var body: some View {
         VStack{
             HStack(spacing: 16){
                 Button(action: {
-                    self.store.action(.want(!self.set.collection.wanted),on: self.set)
+                    switchWanted()
                 }) {
                     HStack(alignment: .lastTextBaseline) {
                         
-                        Image(systemName: set.collection.wanted ? "heart.fill" : "heart").foregroundColor(.white).font(.headline)
+                        Image(systemName: item.collection.wanted ? "heart.fill" : "heart").foregroundColor(.white).font(.headline)
                         Text("collection.want").fontWeight(.bold)
                         
                     }
@@ -28,19 +30,18 @@ struct SetEditorView: View {
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 24)
                 }.buttonStyle(RoundedButtonStyle(backgroundColor: .pink  )).opacity(canEdit() ? 0.6: 1.0)
                 
-                if set.collection.owned {
+                if item.collection.owned {
                     Button(action: {
-                        self.store.action(.qty(self.set.collection.qtyOwned-1),on: self.set)
+                        set(qty: item.collection.qtyOwned-1)
                     }) {
                         Image(systemName: "minus").foregroundColor(.background).font(.title)
                             .frame(minHeight: 24, alignment: .center)
                         
                     }.buttonStyle(RoundedButtonStyle(backgroundColor:.backgroundAlt)).opacity(canEdit() ? 0.6 : 1.0)
                     
-                    Text("\(self.set.collection.qtyOwned)").font(.title).bold()
+                    Text("\(item.collection.qtyOwned)").font(.title).bold()
                     Button(action: {
-                        self.store.action( .qty(self.set.collection.qtyOwned+1),on: self.set)
-                        
+                        set(qty: item.collection.qtyOwned+1)
                     }) {
                         Image(systemName: "plus").foregroundColor(.background).font(.title)
                             .frame(minHeight: 24, alignment: .center)
@@ -48,7 +49,8 @@ struct SetEditorView: View {
                     }.buttonStyle(RoundedButtonStyle(backgroundColor:.backgroundAlt)).opacity(canEdit() ? 0.6 : 1.0)
                 } else {
                     Button(action: {
-                        self.store.action( .qty(1),on: self.set)
+                        set(qty: 1)
+
                     }) {
                         Text("collection.add")
                             .fontWeight(.bold).foregroundColor(.background)
@@ -57,18 +59,41 @@ struct SetEditorView: View {
                 }
             }
             
-            if config.connection == .unavailable {
+            if model.reachability.connection == .unavailable {
                 Text("message.offline").font(.headline).bold().foregroundColor(.red)
-            } else {
-                APIIssueView(error: $store.error)
             }
+//            } else {
+//                APIIssueView(error: $store.error)
+//            }
             
         }
         
         
     }
+    
+    func switchWanted(){
+        Task {
+            do {
+                try await model.perform(.want(!item.collection.wanted), on: item)
+                generator.notificationOccurred(.success)
+            } catch {
+                generator.notificationOccurred(.error)
+            }
+        }
+    }
+    
+    func set(qty:Int) {
+        Task {
+            do {
+                try await model.perform(.qty(qty), on: item)
+                generator.notificationOccurred(.success)
+            } catch {
+                generator.notificationOccurred(.error)
+            }
+        }
+    }
     func canEdit() -> Bool {
-        return config.connection == .unavailable || store.error == .invalid
+        return model.reachability.connection == .unavailable
     }
 }
 

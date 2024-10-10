@@ -9,8 +9,9 @@
 import SwiftUI
 
 struct FigsView: View {
+    @Environment(Model.self) private var model
+
     @EnvironmentObject private var  store : Store
-    @EnvironmentObject var config : Configuration
     @State var filter : LegoListFilter = .all
     @AppStorage(Settings.figsListSorter) var sorter : LegoListSorter = .default
     @AppStorage(Settings.figsDisplayMode) var displayMode : DisplayMode = .default
@@ -38,10 +39,10 @@ struct FigsView: View {
                 } else {
                     EmptyView()
                 }
-                FilterSorterMenu(sorter: $sorter,filter: $filter,searchFilter: .constant([:]), searchFilterEnabled: false,
-                                 sorterAvailable: [.default,.alphabetical,.number],
-                                 filterAvailable: store.searchMinifigsText.isEmpty ? [.all,.wanted] : [.all,.wanted,.owned]
-                )
+//                FilterSorterMenu(sorter: $sorter,filter: $filter,searchFilter: .constant([:]), searchFilterEnabled: false,
+//                                 sorterAvailable: [.default,.alphabetical,.number],
+//                                 filterAvailable: store.searchMinifigsText.isEmpty ? [.all,.wanted] : [.all,.wanted,.owned]
+//                )
                 if !compactList {
                     DisplayModeView(mode: $displayMode)
                 }
@@ -63,7 +64,7 @@ struct FigsView: View {
     fileprivate func searchPlaceholder() -> LocalizedStringKey{
         return filter == .wanted ?
             "search.placeholderwanted" :
-            config.connection == .unavailable ?
+        model.reachability.connection == .unavailable ?
                 "search.placeholderoffline":"search.placeholder"
         
     }

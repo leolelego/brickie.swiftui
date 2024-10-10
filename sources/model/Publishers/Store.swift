@@ -176,10 +176,10 @@ class Store : ObservableObject{
             
             switch self {
             case .want(let wanted):
-                APIRouter<String>.setWanted(token, obj, wanted).responseJSON(completion: completion)
+                APIRouter<String>.setWanted(token, obj.setID, wanted).responseJSON(completion: completion)
                 break
             case .qty(let q):
-                APIRouter<String>.setQty(token, obj, q).responseJSON(completion: completion)
+                APIRouter<String>.setQty(token, obj.setID, q).responseJSON(completion: completion)
                 break
             }
         }
@@ -188,10 +188,10 @@ class Store : ObservableObject{
             
             switch self {
             case .want(let wanted):
-                APIRouter<String>.minifigWanted(token, obj, wanted).responseJSON(completion: completion)
+                APIRouter<String>.minifigWanted(token, obj.minifigNumber, wanted,obj.ownedLoose).responseJSON(completion: completion)
                 break
             case .qty(let q):
-                APIRouter<String>.minifigQty(token, obj, q).responseJSON(completion: completion)
+                APIRouter<String>.minifigQty(token, obj.minifigNumber, q,obj.wanted).responseJSON(completion: completion)
                 break
             }
         }
@@ -396,24 +396,24 @@ extension Store {
         
     }
     func updateOwned(with owned:[LegoSet]){
-        for set in self.sets {
-            let owned = owned.contains(set)
-            DispatchQueue.main.async {
-                set.objectWillChange.send()
-                set.collection.owned = owned
-                if owned == false {
-                    set.collection.qtyOwned = 0
-                }
-            }
-        }
-        self.append(owned)
-        DispatchQueue.main.async {
-            
-            self.isLoadingData = false
-        }
-        
-        let urls = owned.compactMap { return $0.image.thumbnailURL != nil ? URL(string:$0.image.thumbnailURL!) : nil }
-        fetchImages(urls)
+//        for set in self.sets {
+//            let owned = owned.contains(set)
+//            DispatchQueue.main.async {
+//                set.objectWillChange.send()
+//                set.collection.owned = owned
+//                if owned == false {
+//                    set.collection.qtyOwned = 0
+//                }
+//            }
+//        }
+//        self.append(owned)
+//        DispatchQueue.main.async {
+//            
+//            self.isLoadingData = false
+//        }
+//        
+//        let urls = owned.compactMap { return $0.image.thumbnailURL != nil ? URL(string:$0.image.thumbnailURL!) : nil }
+//        fetchImages(urls)
         
     }
     

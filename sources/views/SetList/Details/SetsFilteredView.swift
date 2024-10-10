@@ -9,15 +9,16 @@
 import SwiftUI
 
 struct SetsFilteredView: View {
+    @Environment(Model.self) private var model
+
     @EnvironmentObject private var  store : Store
-    @EnvironmentObject private var  config : Configuration
     @AppStorage(Settings.unreleasedSets) var unreleasedSets : Bool = false
 
     let text : String
     let filter: Store.SearchFilter
     @State var requestSent : Bool = false
-    var sorter : LegoListSorter = .default
-
+    @State var sorter : LegoListSorter = LegoListSorter(rawValue:  UserDefaults.standard.string(forKey: Settings.setsListSorter) ??  "default") ?? .default
+    
     var items : [LegoSet] {
         return store.sets.filter({
             switch filter {
@@ -33,7 +34,7 @@ struct SetsFilteredView: View {
     }
     
     var body: some View {
-        SetsListView(items: items,sorter:.constant(sorter),filter: .constant(.all), searchFilter: .constant([:]))
+        SetsListView(fetchMode:.all,sorter:$sorter)
         .navigationBarItems(trailing:makeCheck())
         .navigationBarTitle(text.uppercased()+"_")
         .onAppear {
@@ -49,7 +50,7 @@ struct SetsFilteredView: View {
         Group{
             if store.isLoadingData {
                 ProgressView().progressViewStyle(CircularProgressViewStyle())
-            } else if config.connection == .unavailable {
+            } else if model.reachability.connection == .unavailable {
                 Image.wifiError.imageScale(.large)
             }else {
                 Text("\(items.filter{$0.collection.owned}.count)/\(items.count) ").font(.lego(size: 15))

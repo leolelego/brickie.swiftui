@@ -10,8 +10,9 @@ import SwiftUI
 
 struct MinifigEditorView: View {
     @EnvironmentObject var store : Store
+    @Environment(Model.self) private var model
+
     @ObservedObject var minifig : LegoMinifig
-    @EnvironmentObject var config: Configuration
 
     var body: some View {
         VStack(spacing: 16){
@@ -62,7 +63,7 @@ struct MinifigEditorView: View {
                 }
                 
             }
-            if config.connection == .unavailable {
+            if model.reachability.connection == .unavailable {
                 Text("message.offline").font(.headline).bold().foregroundColor(.red)
             } else {
                 APIIssueView(error: $store.error)
@@ -74,7 +75,7 @@ struct MinifigEditorView: View {
     }
     
     func canEdit() -> Bool {
-        return config.connection == .unavailable || store.error == .invalid
+        return model.reachability.connection == .unavailable || store.error == .invalid
     }
 }
 

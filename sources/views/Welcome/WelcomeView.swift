@@ -9,9 +9,9 @@
 import SwiftUI
 
 struct WelcomeView: View {
-    @SceneStorage(Settings.displayWelcome)  var displayWelcome : Bool = true
     let showContinu : Bool
     @State var more = false
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         ScrollView(showsIndicators: false) {
             
@@ -48,7 +48,7 @@ struct WelcomeView: View {
             }
             if showContinu {
                 Button(action: {
-                    displayWelcome = false
+                    dismiss()
                 }, label: {
                     Text("wlcm.btn").bold()
                         .frame(minWidth: 0, maxWidth: .infinity, minHeight: 20)
@@ -72,7 +72,6 @@ struct WelcomeView_Previews: PreviewProvider {
     }
 }
 // MARK: - API
-@available(iOS 13.0, OSX 10.15, tvOS 13.0, watchOS 6.0, *)
 extension View {
     public func foreground<Overlay: View>(_ overlay: Overlay) -> some View {
         self.overlay(overlay).mask(self)

@@ -15,58 +15,85 @@ var kConfig = Configuration()
 struct TheApp : App {
     
     @State private var model = Model()
+    @EnvironmentObject private var  store : Store
 
+
+    @AppStorage(Settings.displayWelcome)  var displayWelcome : Bool = true
+    @AppStorage(Settings.rootTabSelected)  var selection : Int = 0
+    @AppStorage(Settings.reviewRuntime) var reviewRuntime : Int = 0
+    @AppStorage(Settings.reviewVersion) var reviewVersion : String?
+    @AppStorage(Settings.rootSideSelected)  var sideSelection : Int?
+    @State var isPresentingSettings = false
     
-    var networkCancellable :AnyCancellable? = {
-        kConfig.$connection
-            .debounce(for: .seconds(2), scheduler: DispatchQueue.main)
-            .filter{ !$0.cantUpdateDB }
-            .sink { _ in
-                kCollection.requestForSync = true
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    @AppStorage(Settings.appVersion2) private var appVersion2: Bool = true
+
+
+
+    func toolbar() -> Button<Image> {
+        Button(action: {
+            self.isPresentingSettings.toggle()
+        }, label: {
+            Image(systemName: "gear")
+        })
+    }
+    var body : some Scene {
+        WindowGroup{
+            
+            if model.keychain.user == nil  {
+                LoginView().accentColor(.backgroundAlt)
+                    .sheet(isPresented: $displayWelcome) {
+                        WelcomeView(showContinu: true)
+                    }
+                    .environment(model)
+            } else   {
+                    TabView(selection: $selection){
+                        ForEach(AppPanel.allCases, id: \.self) { item in
+                            SinglePanelView(item: item, view: item.view, toolbar: toolbar() )
+                        }
+                    }
+                    .environment(model)
+                    .modelContainer(model.datamanager.modelContainer)
+
+                    .accentColor(.backgroundAlt)
+                        .sheet(isPresented: $isPresentingSettings) {
+                            SettingsView().environmentObject(store)
+                        }
+                        .sheet(isPresented: $displayWelcome) {
+                            WelcomeView(showContinu: true)
+                        }
                 
+     
             }
-    }()
-    
-    #if DEBUG_PREVIEWS
-    
-    var body : some Scene {
-        WindowGroup{
-            SetsView_Previews.previews
-                .environment(DataModel())
-                .environmentObject(kCollection).environmentObject(kConfig)
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-                    kCollection.backup()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                    kCollection.backup()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    kCollection.requestForSync = true
-                }
-        }
-    }
-    
-    #else
-    
-    var body : some Scene {
-        WindowGroup{
-            AppRootView()
-                .environment(model)
-                .modelContainer(model.datamanager.modelContainer)
-                .environmentObject(kCollection).environmentObject(kConfig)
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
-                    kCollection.backup()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.willTerminateNotification)) { _ in
-                    kCollection.backup()
-                }
-                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
-                    kCollection.requestForSync = true
-                }
+            
+            
+//            AppRootView()
+               
+//                .environmentObject(kCollection)
         }
     }
 
-    #endif
 
+    
+    
 }
 
+let currencyFormatter : NumberFormatter = {
+    let f = NumberFormatter()
+    f.numberStyle = .currency
+    switch Locale(identifier: Locale.currentRegionCode).identifier {
+    case "ca":
+        f.currencyCode = "CAD"
+        break
+    case "us":
+        f.currencyCode = "USD"
+        break
+    case "gb":
+        f.currencyCode = "GBP"
+        break
+    default:
+        f.currencyCode = "EUR"
+    }
+    return f
+}()

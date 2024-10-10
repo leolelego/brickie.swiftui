@@ -31,48 +31,14 @@ struct SetsView2: View {
     @State private var isLoading = false
     
     var body: some View {
-        VStack {
-            if isLoading {
-                Text("Loading")
-            }
-            Button("Reload") {
-                isLoading = true
-                
-                Task {
-                    await model.fetchOwnedSets()
-                    log("------ Sets updated \(sets.count) ------")
-                    for set in sets{
-                        log(">>> [\(set.setID)]\(set.name) \(set.collection.owned ? "Owned" : "Not Owned") \(set.collection.qtyOwned)")
-                    }
-                    isLoading = false
-                    
-                }
-            }
-            Text("Sets \(sets.count)")
-            Text("Sets  2--\(sets2.count)")
-            Text("Collect \(collec.count)")
-            Text("AGE  2--\(age.count)")
-            Text("DIM \(dim.count)")
-            Text("PS  2--\(prices.count)")
-            Text("CODE \(code.count)")
-            Text("IG \(images.count)")
-            Text("insstr \(instru.count)")
-            Divider()
-            ForEach(sets){ set in
-                Text("[\(set.setID)]\(set.name) \(set.collection.owned ? "Owned" : "Not Owned") \(set.collection.qtyOwned) \(set.prices?.US ?? 0)").id(UUID())
-            }.id(UUID())
-            
-                
-//            }
-            
-            Button("Switch to App Version") {
-                appVersion2.toggle()
-            }
+        NavigationStack{
+            SetsListView(fetchMode:.ownedSets,sorter:.constant(.default))
+
         }
         
         .task {
             isLoading = true
-            await model.fetchOwnedSets()
+            try? await model.fetch(.ownedSets)
             isLoading = false
         }
         

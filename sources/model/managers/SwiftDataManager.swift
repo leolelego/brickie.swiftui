@@ -25,7 +25,6 @@ class DataManager {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             print("ModelContainer creation failed: \(error)")
-            flushLocalStorage() // Reset local storage
             do {
                 return try ModelContainer(for: schema, configurations: [modelConfiguration])
             } catch {
@@ -38,22 +37,5 @@ class DataManager {
         modelContainer.mainContext
     }
     
-    private func flushLocalStorage() {
-        let fileManager = FileManager.default
-        
-        // Assuming the URL of your persistent store is in the application's document directory
-        let storeURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        
-        do {
-            let storePath = storeURL.path
-            
-            // Remove the entire directory or specific files associated with your model
-            if fileManager.fileExists(atPath: storePath) {
-                try fileManager.removeItem(atPath: storePath)
-                print("Local storage successfully flushed.")
-            }
-        } catch {
-            print("Failed to flush local storage: \(error.localizedDescription)")
-        }
-    }
+
 }

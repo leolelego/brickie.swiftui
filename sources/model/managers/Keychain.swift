@@ -7,6 +7,7 @@
 //
 import KeychainSwift
 import SDWebImage
+@Observable
 class Keychain {
     
     let keychain = KeychainSwift()

@@ -9,6 +9,7 @@
 import Foundation
 import SwiftData
 
+
 @Model
 final class SetData : Decodable,Equatable{
     #Unique<SetData>([\.setID])
@@ -115,11 +116,54 @@ final class SetData : Decodable,Equatable{
         self.dimensions = try container.decode(Dimension.self, forKey: .dimensions)
         self.ageRange = try container.decode(AgeRange.self, forKey: .ageRange)
         self.prices = try container.decodeIfPresent(Prices.self, forKey: .LEGOCom)
-        self.additionalImages = try container.decodeIfPresent([SetImage].self, forKey: .additionalImages)
-        self.instrucctions = try container.decodeIfPresent([Instruction].self, forKey: .instructions)
+        if let data =  try container.decodeIfPresent([SetImage].self, forKey: .additionalImages){
+            self.additionalImages = data // Update only if exist so we keep download from another way
+        }
+        if let data =  try container.decodeIfPresent([Instruction].self, forKey: .instructions) {
+            self.instrucctions = data // Update only if exist so we keep download from another way
+        }
         
+    }
+    
+    class SetNote : Codable {
+        let setID : Int
+        let notes : String
     }
 
 }
 
 
+extension SetData {
+    static var previewData: SetData {
+        let setImage = SetImage(thumbnailURL: "https://images.brickset.com/sets/small/1371-1.jpg",
+                                imageURL: "https://images.brickset.com/sets/images/1371-1.jpg")
+
+        let setCollection = SetCollection(owned: true, wanted: false, qtyOwned: 1, rating: 0, notes: "")
+
+        return SetData(
+            setID: 268,
+            number: "1371",
+            name: "Spinosaurus Attack",
+            year: 2001,
+            theme: "Studios",
+            themeGroup: "Modern day",
+            subtheme: "Jurassic Park III",
+            category: "Normal",
+            pieces: 155,
+            minifigs: 2,
+            image: setImage,
+            bricksetURL: "https://brickset.com/sets/1371-1",
+            rating: 0,
+            packagingType: "Box",
+            availability: "REtail",
+            instructionsCount: 1,
+            collection: setCollection,
+            barcode: BarCode(EAN: "02681371100000"),
+            dimensions: .previewData,
+            ageRange: .init(min:3),
+            prices: .previewData,
+            additionalImages: nil,
+            instrucctions: []
+        )
+    }
+}

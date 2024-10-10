@@ -27,8 +27,8 @@ struct MinifigDetailView: View {
             
             
         }
-        .sheet(isPresented: $isImageDetailPresented, content: { FullScreenImageView(isPresented: $isImageDetailPresented, urls: .constant([minifig.imageUrl]), currentIndex: .constant(1))})
-        
+//        .sheet(isPresented: $isImageDetailPresented, content: { FullScreenImageView(isPresented: $isImageDetailPresented, urls: .constant([minifig.imageUrl]), currentIndex: .constant(1))})
+//        
         .navigationBarTitle("", displayMode: .inline)
         
         .task {
@@ -84,7 +84,7 @@ extension MinifigDetailView {
     private func saveNotes(completion: @escaping (Bool)->Void){
         
         Task {
-            let response = try? await APIRouter<String>.minifigNotes(store.user!.token, minifig, notes).responseJSON2()
+            let response = try? await APIRouter<String>.minifigNotes(store.user!.token, minifig.minifigNumber, notes).responseJSON2()
             completion(response != nil)
         }
         

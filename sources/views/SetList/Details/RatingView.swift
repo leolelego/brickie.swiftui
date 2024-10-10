@@ -18,9 +18,9 @@ enum RatingStar :  String {
 }
 struct RatingView: View {
     @EnvironmentObject private var  store : Store
-
+    
     var  rating : Float {editable ? set.collection.rating : set.rating}
-    @ObservedObject var set : LegoSet
+    var set : SetData
     let editable : Bool
     func star(level:Int) -> RatingStar {
         if Int(rating) >= level {
@@ -43,8 +43,8 @@ struct RatingView: View {
                         } label: {
                             star(level: n).view
                         }.disabled(!editable)
-
-                   
+                        
+                        
                     }
                 }.modifier(Rainbow())
                 Text("(\(String(format: "%.1f", rating)))").bold()
@@ -58,23 +58,10 @@ struct RatingView: View {
     func setRating(_ newRating:Int){
         
         Task {
-            let response = try? await APIRouter<String>.setRating(store.user!.token, set, newRating).responseJSON2()
-            if response != nil {
-                set.objectWillChange.send()
-                set.collection.rating = Float(newRating)
-            }
+            _ = try? await APIRouter<String>.setRating(store.user!.token, set.setID, newRating).responseJSON2()
+            
+            set.collection.rating = Float(newRating)
         }
-//            APIRouter<String>.setRating(store.user!.token, set, newRating)
-//            .responseJSON { response in
-//                switch response {
-//                case .failure(let err):
-//                    logerror(err)
-//                    break
-//                case .success:
-//                    
-//                    break
-//                }
-//            }
     }
 }
 extension Float {
@@ -90,7 +77,7 @@ struct Rainbow: ViewModifier {
         Color(red: 157/255, green: 226/255, blue: 79/255),
         Color(red: 135/255, green: 206/255, blue: 250/255),
     ]
-
+    
     func body(content: Content) -> some View {
         content
             .overlay(GeometryReader { (proxy: GeometryProxy) in
@@ -98,7 +85,7 @@ struct Rainbow: ViewModifier {
                     LinearGradient(gradient: Gradient(colors: self.hueColors),
                                    startPoint: .leading,
                                    endPoint: .trailing)
-                        .frame(width: proxy.size.width)
+                    .frame(width: proxy.size.width)
                 }.allowsHitTesting(false)
             })
             .mask(content)

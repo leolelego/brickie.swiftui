@@ -26,7 +26,7 @@ struct ThumbnailView: View {
             }) {
                 imageView
             }
-            .sheet(isPresented: $present, content: { FullScreenImageView(isPresented: $present, urls: $presentedURLs,currentIndex: .constant(0) )})
+//            .sheet(isPresented: $present, content: { FullScreenImageView(isPresented: $present, urls: $presentedURLs,currentIndex: .constant(0) )})
             
         } else {imageView}
     }

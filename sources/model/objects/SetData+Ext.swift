@@ -25,6 +25,16 @@ extension SetData {
         return priceFloat / Float(piec)
     }
     
+    var pricePerPiece : String? {
+        switch Locale(identifier: Locale.current.region?.identifier ?? "us").identifier {
+        case "ca", "us","gb":
+            return currencyFormatter.string(for: pricePerPieceFloat)
+        default:
+            currencyFormatter.currencyCode = "EUR"
+            return currencyFormatter.string(for: pricePerPieceFloat)
+        }
+    }
+    
     var priceFloat : Float {
            switch Locale(identifier: Locale.currentRegionCode).identifier {
            case "ca": prices?.CA ?? 0

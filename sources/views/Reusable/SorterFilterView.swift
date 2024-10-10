@@ -9,27 +9,13 @@
 import SwiftUI
 
 struct FilterSorterMenu : View {
-    @EnvironmentObject private var  store : Store
     @Binding var sorter : LegoListSorter
-    @Binding var filter : LegoListFilter
     @Binding var searchFilter : [LegoListSorter:String]
     var searchFilterEnabled : Bool
-
     var sorterAvailable : [LegoListSorter]
-    var filterAvailable : [LegoListFilter]
     var body : some View {
         Menu {
             Section(header: Text("menu.filter")) {
-   
-                Picker(selection: $filter, label: Text("Filter")) {
-                    ForEach(filterAvailable, id: \.self) { item in
-                        HStack{
-                            Image(systemName:item.systemImage)
-                            Text(item.local)
-                        }.tag(item)
-                        
-                    }
-                }
                 if searchFilterEnabled{
                     Menu("filter.year"){
                         ForEach((1949...thisYear).reversed(), id: \.self) { y in
@@ -39,11 +25,11 @@ struct FilterSorterMenu : View {
                         }
                     }
                     Menu("filter.theme"){
-                        ForEach(store.themes) { theme in
-                            Button(theme.theme){
-                                withAnimation{ searchFilter[.default] = theme.theme}
-                            }
-                        }
+//                        ForEach(store.themes) { theme in
+//                            Button(theme.theme){
+//                                withAnimation{ searchFilter[.default] = theme.theme}
+//                            }
+//                        }
                     }
                 }
                 

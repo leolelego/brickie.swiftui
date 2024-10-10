@@ -89,6 +89,14 @@ extension SetData{
         private enum CodingKeys: String, CodingKey {
             case height, width, depth, weight
         }
+            static var previewData: Dimension {
+                Dimension(
+                    height: 28.8,
+                    width: 28.8,
+                    depth: 4.8,
+                    weight: 1.2
+                )
+            }
     }
     
     @Model
@@ -184,6 +192,14 @@ extension SetData{
                 case retailPrice
             }
         }
+        static var previewData: Prices {
+                Prices(
+                    US: 24,
+                    UK: 22,
+                    CA: 22,
+                    DE: 22
+                )
+            }
     }
     
     
@@ -210,4 +226,6 @@ extension SetData{
             case EAN, UPC
         }
     }
+    
+    
 }

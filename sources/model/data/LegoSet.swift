@@ -140,21 +140,4 @@ extension LegoSet {
         return dimensions.weight != nil
     }
 }
-let currencyFormatter : NumberFormatter = {
-    let f = NumberFormatter()
-    f.numberStyle = .currency
-    switch Locale(identifier: Locale.currentRegionCode).identifier {
-    case "ca":
-        f.currencyCode = "CAD"
-        break
-    case "us":
-        f.currencyCode = "USD"
-        break
-    case "gb":
-        f.currencyCode = "GBP"
-        break
-    default:
-        f.currencyCode = "EUR"
-    }
-    return f
-}()
+

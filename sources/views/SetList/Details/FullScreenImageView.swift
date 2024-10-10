@@ -9,13 +9,13 @@
 import SwiftUI
 import SDWebImageSwiftUI
 struct FullScreenImageView: View {
-    @Binding var isPresented : Bool
     @Binding var urls : [String]
     @Binding var currentIndex : Int
     @State var lastScale: CGFloat = 1.0
     @State var scale: CGFloat = 1.0
     @State private var currentPosition: CGSize = .zero
     @State private var newPosition: CGSize = .zero
+    @Environment(\.dismiss) var dismiss
     var body: some View {
         let scaleGesture = MagnificationGesture(minimumScaleDelta: 0.1).onChanged { value in
             let delta = value / self.lastScale
@@ -43,7 +43,7 @@ struct FullScreenImageView: View {
         
        // let dragBeforePinch =  scaleGesture.exclusively(before:dragGesture )
         return
-            NavigationView{
+            NavigationStack{
                 TabView (selection:$currentIndex){
                     ForEach(0..<urls.count, id: \.self){ idx in
                         
@@ -61,12 +61,13 @@ struct FullScreenImageView: View {
                 .toolbar(content: {
                     ToolbarItem(placement: .navigationBarTrailing){
                         Button {
-                            self.isPresented.toggle()
+                            dismiss()
                         } label: {
                             Image(systemName: "xmark")
                         }
                     }
-                }).navigationBarTitle("", displayMode: .inline)
+                })
+                .navigationBarTitle("", displayMode: .inline)
                 .onTapGesture {
                     resetGesture()
                 }

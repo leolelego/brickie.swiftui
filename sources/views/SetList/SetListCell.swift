@@ -10,8 +10,7 @@ import SwiftUI
 
 
 struct SetListCell : View {
-    @ObservedObject var set : LegoSet
-//    @AppStorage(Settings.currency) var currency : Currency = .default
+    var set : SetData
 
     var body: some View {
         ZStack(alignment: .bottomTrailing){

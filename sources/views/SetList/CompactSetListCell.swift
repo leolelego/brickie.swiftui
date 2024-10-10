@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct CompactSetListCell : View {
-    @ObservedObject var set : LegoSet
+    var set : SetData
     @AppStorage(Settings.setsListSorter) var sorter : LegoListSorter = .default
 
     let cellHeight : CGFloat = 50

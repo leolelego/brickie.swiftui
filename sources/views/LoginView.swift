@@ -10,7 +10,6 @@ import SwiftUI
 
 struct LoginView: View {
     @Environment(Model.self) private var model
-    @EnvironmentObject var config : Configuration
     @State var username = ""
     @State var password = ""
     @State var error : LocalizedStringKey?
@@ -19,7 +18,7 @@ struct LoginView: View {
     var body: some View {
         VStack(spacing: 16){
             makeImage().offset(y: -80)
-            if config.connection == .unavailable {
+            if model.reachability.connection == .unavailable {
                 Text("login.offline").font(.headline).bold().foregroundColor(.red)
             } else {
                 if !loading {
@@ -98,7 +97,7 @@ struct LoginView: View {
                                         
                     let hash = try await APIRouter<String>.login(self.username, self.password).responseJSON2()
                     self.model.keychain.user = User(username: self.username, token: hash)
-        
+                    print("Login success \(hash)")
                     
  
                 } catch(let err) {
@@ -142,12 +141,11 @@ struct LoginView: View {
     }
 }
 
-struct LoginView_Previews: PreviewProvider {
-    static var previews: some View {
-        LoginView()
-        //            .previewDevice("iPhone SE")
-            .environmentObject(PreviewStore() as Store)
-            .environmentObject(Configuration())
-            .previewDisplayName("Defaults")
-    }
-}
+//struct LoginView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        LoginView()
+//        //            .previewDevice("iPhone SE")
+//            .environmentObject(PreviewStore() as Store)
+//            .previewDisplayName("Defaults")
+//    }
+//}

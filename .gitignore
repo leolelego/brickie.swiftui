@@ -1,4 +1,5 @@
 sources/model/Secrets.swift
+sources/assets/Secrets.xcconfig
 
 ## HockeyApp
 *.app.dSYM.zip
@@ -30,9 +31,6 @@ xcuserdata/
 *.xcscmblueprint
 
 ### Xcode Patch ###
-*.xcodeproj/*
-!*.xcodeproj/project.pbxproj
-!*.xcodeproj/xcshareddata/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
 
