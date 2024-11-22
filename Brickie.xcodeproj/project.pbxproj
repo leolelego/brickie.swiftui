@@ -74,7 +74,6 @@
 		B33A4B4529DCDD1200F19111 /* Locale+Ext.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33A4B4429DCDD1200F19111 /* Locale+Ext.swift */; };
 		B33A4B4729DCE06400F19111 /* CompactSetListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33A4B4629DCE06400F19111 /* CompactSetListCell.swift */; };
 		B33A4B4929DCEB8D00F19111 /* CompactFigsListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33A4B4829DCEB8D00F19111 /* CompactFigsListCell.swift */; };
-		B34E351F2CF05AAE00BF68E8 /* Secrets.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = B34E351E2CF05AAE00BF68E8 /* Secrets.xcconfig */; };
 		B361BEC527B3338200FD4A4A /* WelcomeItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B361BEC427B3338200FD4A4A /* WelcomeItemView.swift */; };
 		B36981C626AF158C00046AA3 /* APIIssueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B36981C526AF158C00046AA3 /* APIIssueView.swift */; };
 		B3831BA4278F5FD9000301FC /* TextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3831BA3278F5FD9000301FC /* TextView.swift */; };
@@ -646,7 +645,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B34E351F2CF05AAE00BF68E8 /* Secrets.xcconfig in Resources */,
 				B3900DD62784EDAD002D228A /* MPLUSRounded1c-Black.ttf in Resources */,
 				967ED17F24608F9F004712DB /* Legothick.ttf in Resources */,
 				964BA877246A1FFE00984DCC /* Localizable.strings in Resources */,
