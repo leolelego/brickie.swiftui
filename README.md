@@ -43,14 +43,10 @@ We don't dislay any ads or send anything to any server. So we don't track you us
 #### Build
 
 - clone the project
-- add a `Secrets.swift` file at this path : `./sources/model` with the following content
+- add a `Secrets.xcconfig` file at this path : `./sources/assets` with the following content
 
 ```
-  // API Key for BrickSet
-  //      For  collection
-  //      API key :request one in the form
-  //      API Docs V3 : https://brickset.com/tools/webservices/v3
-  let BrickSetApiKey = "YOUR API KEY"
+BRICKSET_API_KEY = MyKey
 ```
 
  - change the bundle and the signing team in Xcode
