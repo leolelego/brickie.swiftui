@@ -48,6 +48,7 @@ extension Model {
             item.collection = c
             break
         }
+        try? datamanager.modelContext.save()
         
     }
     enum Action {

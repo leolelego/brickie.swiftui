@@ -130,6 +130,7 @@ final class SetData : Decodable,Equatable{
         let notes : String
     }
 
+
 }
 
 

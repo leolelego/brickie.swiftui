@@ -11,17 +11,22 @@ import SwiftData
 struct SetsListView: View {
     @Environment(Model.self) private var model
     @Environment(\.modelContext) private var modelContext
-    @Query() //filter: #Predicate<SetData>{set in set.collection.owned == true}
-    private var sets: [SetData]
     let fetchMode : Model.FetchAction
+
+    @Query //(filter: #Predicate<SetData> {$0.collection.owned})
+    private var sets: [SetData]
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     
-    @Binding var sorter : LegoListSorter
+    var sorter : LegoListSorter = .default
     @State var searchFilter : [LegoListSorter:String] = [:]
 
     @AppStorage(Settings.compactList) var compactList : Bool = false
-    
+
+    init(fetchMode:Model.FetchAction,sortOrder: [SortDescriptor<SetData>]){
+        _sets = Query(filter:fetchMode.predicate())
+        self.fetchMode = fetchMode
+    }
     
     var body: some View {
         VStack(alignment: .leading){
@@ -102,7 +107,7 @@ struct SetsListView: View {
         }
         .toolbar {
             
-            FilterSorterMenu( sorter: $sorter, searchFilter: $searchFilter, searchFilterEnabled: true, sorterAvailable: [.default,.alphabetical,.number,.older,.newer,.piece,.pieceDesc,.price,.priceDesc,.pricePerPiece,.pricePerPieceDesc])
+//            FilterSorterMenu( sorter: $sorter, searchFilter: $searchFilter, searchFilterEnabled: true, sorterAvailable: [.default,.alphabetical,.number,.older,.newer,.piece,.pieceDesc,.price,.priceDesc,.pricePerPiece,.pricePerPieceDesc])
         }
   
     }
@@ -145,6 +150,7 @@ struct SetsListView: View {
                 remove: {
                     Task(priority: .userInitiated) {
                         try? await model.perform(.qty(item.collection.qtyOwned-1),on: item)
+                            
                     }
                 },
                 want: {

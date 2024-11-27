@@ -21,8 +21,10 @@ struct PastilView: View {
                     Image(systemName: wanted ? "heart.fill":"heart").font(.footnote)
                         .padding(.horizontal,8)
                         .foregroundColor(.white)
+                        .padding(.vertical,4)
                 }
-            }.background(RoundedCorners(color: Color.black, tl: 16, tr: 0, bl: 0, br: 0))
+            }
+            .background(RoundedCorners(color: Color.black, tl: 16, tr: 0, bl: 0, br: 0))
     }
 }
 

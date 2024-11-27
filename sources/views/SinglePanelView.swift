@@ -11,33 +11,42 @@ struct SinglePanelView: View {
     
     @EnvironmentObject private var  store : Store
     @AppStorage(Settings.collectionNumberBadge) var collectionNumberBadge : Bool = false
-
+    @State var isPresentingSettings = false
+    
+    
     let item : AppPanel
     let view : AnyView
-    let toolbar : Button<Image>
     var body: some View {
-        NavigationView {
+        NavigationStack {
             view
-                .navigationTitle(item.title)
-                .toolbar(content: {
-                    ToolbarItem(placement: .navigationBarLeading){
-                        toolbar
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button(action: {
+                            self.isPresentingSettings.toggle()
+                        }, label: {
+                            Image(systemName: "gear")
+                        })
                     }
-                })
-        }.navigationViewStyle(StackNavigationViewStyle())
-            .tabItem {
-                VStack {
-                    item.image
-                    Text(item.tab)
                 }
-            }.tag(item.rawValue)
+                .navigationTitle(item.title)
+        }
+        
+        .sheet(isPresented: $isPresentingSettings) {
+            SettingsView().environmentObject(store)
+        }
+        .tabItem {
+            VStack {
+                item.image
+                Text(item.tab)
+            }
+        }.tag(item.rawValue)
             .badge(badgeValue)
     }
     
     var badgeValue : Int {
         collectionNumberBadge ?
-            item == .sets ? store.sets.qtyOwned : store.minifigs.qtyOwned
-            : 0
+        item == .sets ? store.sets.qtyOwned : store.minifigs.qtyOwned
+        : 0
     }
 }
 
@@ -77,6 +86,6 @@ enum AppPanel : Int,CaseIterable {
         default: return "lego_brick"
         }
     }
-
+    
 }
 

@@ -225,6 +225,10 @@ extension SetData{
         private enum CodingKeys: String, CodingKey {
             case EAN, UPC
         }
+        
+        func match(_ string:String) -> Bool {
+            return EAN?.localizedCaseInsensitiveContains(string) ?? UPC?.localizedCaseInsensitiveContains(string) ?? false
+        }
     }
     
     

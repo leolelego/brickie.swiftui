@@ -7,14 +7,17 @@
 //
 
 import SwiftUI
-
+import Combine
 
 struct SetsView: View {
-//    @EnvironmentObject private var  store : Store
+    @Environment(Model.self) private var model
     @State var isPresentingScanner = false
-    @AppStorage(Settings.setsListSorter) var sorter : LegoListSorter = .default
-
-    
+    @State private var currentIndex : Int = 2
+    @State private var sortOrder = SetData.SortDescriptorProvider.alphabetical
+//    @State private var searchText : String = ""
+    @State private var isLoading: Bool = false
+    @StateObject private var searchText = DebouncedString()
+    @State private var searchString = ""
     var body: some View {
 //        VStack(alignment: .leading, spacing: 8){
 //            SetsListView()
@@ -23,21 +26,98 @@ struct SetsView: View {
 //               
 //            .disableAutocorrection(true)
 //        }
-        SetsListView(fetchMode: .ownedSets, sorter:$sorter)
+        TabView(selection: $currentIndex) {
+            SetsListView2(fetchMode: .ownedSets,sortOrder: sortOrder.sortDescriptors).tag(0).toolbar(.hidden, for: .tabBar)
+            SetsListView2(fetchMode: .wantedSets,sortOrder: sortOrder.sortDescriptors).tag(1).toolbar(.hidden, for: .tabBar)
+            SetsListView2(fetchMode: .search(searchText.debouncedValue),sortOrder: SetData.SortDescriptorProvider.alphabetical.sortDescriptors)
+           //atman Text(searchText.debouncedValue)
+                .searchable(text: $searchText.value,isPresented: .constant(true))
+                .onChange(of: searchText.debouncedValue) {
+                    Task {
+                        try? await model.fetch(.search(searchText.debouncedValue))
+                    }
+                }
+                .tag(2).toolbar(.hidden, for: .tabBar)
+        }
+        .background(.red)
+        
+        /*.tabViewStyle(.tabBarOnly)*/ //(indexDisplayMode: .never)
+        //.gesture(DragGesture().onChanged { _ in })
         .sheet(isPresented: $isPresentingScanner) {
             makeScanner()
         }
-//        .toolbar{
-//
-//                Button(action: {
-//                    isPresentingScanner.toggle()
-//                }, label: {
-//                    Image(systemName: "barcode.viewfinder")
-//                })
-//
-//            
-//        }
+        .toolbar {
+            Menu {
+                Picker(selection: $sortOrder, label: Text("Sorting")) {
+                    ForEach(SetData.SortDescriptorProvider.allCases) { item in
+                        HStack{
+                            Image(systemName:item.systemImage)
+                            Text(item.local)
+                            if item == sortOrder {
+                                Image(systemName:"checkmark")
+
+                            }
+                        }.tag(item)
+                        
+                    }
+                }
+                    } label: {
+                        Label("Sort", systemImage: "arrow.left.arrow.right")
+                    }
+        }
     }
+//    
+//    @ViewBuilder func SearchView() -> some View{
+////        Group {
+////            if isLoading {
+////                SetsListView2(fetchMode: .search(searchText),sortOrder: SetData.SortDescriptorProvider.alphabetical.sortDescriptors)
+////                    .redacted(reason: .placeholder)
+////            } else {
+//                SetsListView2(fetchMode: .search(searchText),sortOrder: SetData.SortDescriptorProvider.alphabetical.sortDescriptors)
+////            }
+////                
+////        
+////        }
+//            .searchable(text: $searchText,isPresented: .constant(true))
+////            .onChange(of: searchText, {
+////                searchAction()
+////            })
+//    }
+//    func searchAction() {
+//        print("Search for \(searchText)")
+//        searchCancellable?.cancel()
+//        withAnimation {
+//            isLoading = true
+//        }
+//       
+//        searchCancellable = Just(searchText)
+//            .delay(for: .milliseconds(850), scheduler: DispatchQueue.main)
+//            .sink { searchQuery in
+//                print("Debounced \(searchQuery)")
+//                Task {
+//                   
+//                   // try? await model.fetch(.search(searchText))
+//                    withAnimation {
+//                        isLoading = false
+//
+//                    }
+//                }
+//                
+//            }
+//        searchCancellable = searchText.publisher
+//        
+//                    .debounce(for: .milliseconds(3), scheduler: DispatchQueue.main)
+//                    .removeDuplicates()
+//                    .sink { debouncedText in
+//                        print("Debounced")
+//
+//                        Task {
+//                            print("Debounced 2")
+//                            try? await model.fetch(.search(searchText))
+//                        }
+//                    }
+  
+//    }
     
     func makeScanner() -> some View{
         NavigationStack{
@@ -71,11 +151,7 @@ struct SetsView: View {
     }
     
 //    fileprivate func searchPlaceholder() -> LocalizedStringKey{
-//        return filter == .wanted ?
-//            "search.placeholderwanted" :
-//            config.connection == .unavailable ?
-//                "search.placeholderoffline":"search.placeholder"
-//        
+//        return model.reachability.connection == .unavailable ? "search.placeholderoffline":"search.placeholder"
 //    }
 
     

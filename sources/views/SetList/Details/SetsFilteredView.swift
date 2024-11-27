@@ -34,16 +34,17 @@ struct SetsFilteredView: View {
     }
     
     var body: some View {
-        SetsListView(fetchMode:.all,sorter:$sorter)
-        .navigationBarItems(trailing:makeCheck())
-        .navigationBarTitle(text.uppercased()+"_")
-        .onAppear {
-            if self.requestSent == false {
-                self.store.searchSets(text: self.text,by:self.filter)
-                self.requestSent = true
-            }
-                   
-        }
+        Color.red
+//        SetsListView(fetchMode:.all,sorter:$sorter)
+//        .navigationBarItems(trailing:makeCheck())
+//        .navigationBarTitle(text.uppercased()+"_")
+//        .onAppear {
+//            if self.requestSent == false {
+//                self.store.searchSets(text: self.text,by:self.filter)
+//                self.requestSent = true
+//            }
+//                   
+//        }
     }
     
     func makeCheck() -> some View{

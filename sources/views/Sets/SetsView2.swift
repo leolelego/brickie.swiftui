@@ -32,7 +32,8 @@ struct SetsView2: View {
     
     var body: some View {
         NavigationStack{
-            SetsListView(fetchMode:.ownedSets,sorter:.constant(.default))
+            Color.red
+           // SetsListView(fetchMode:.ownedSets,sorter:.constant(.default))
 
         }
         

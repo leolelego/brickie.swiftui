@@ -13,10 +13,9 @@ struct SetListCell : View {
     var set : SetData
 
     var body: some View {
-        ZStack(alignment: .bottomTrailing){
-            self.makeInfos()
+        makeInfos()
+        .overlay(alignment: .bottomTrailing) {
             PastilView(owned: set.collection.qtyOwned, wanted:  set.collection.wanted)
-
         }
         .background(BackgroundImageView(imagePath: self.set.image.imageURL))
         .modifier(RoundedShadowMod())
@@ -33,7 +32,6 @@ struct SetListCell : View {
                     }
                 }
                 Spacer()
-               // NumberText(text: set.number, size: 27)
                Text(set.number).font(.number(size: 22))
                     .shadow(color: .white, radius: 1, x: 1, y: 1)
                    .offset(x: 10, y: -12)
